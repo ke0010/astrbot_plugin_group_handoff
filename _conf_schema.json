@@ -1,0 +1,50 @@
+{
+  "enabled": {
+    "type": "bool",
+    "description": "启用群聊轮流说话",
+    "hint": "关掉就完全回到 AstrBot 原生行为。两个实例都要各自打开，否则只有一边会等。",
+    "default": true
+  },
+  "group_whitelist": {
+    "type": "list",
+    "description": "生效的群号白名单（留空 = 所有群聊）",
+    "hint": "填 QQ 群号，只对这些群生效。私聊永远不生效。",
+    "default": []
+  },
+  "max_wait_seconds": {
+    "type": "int",
+    "description": "最长只等多少秒",
+    "hint": "等别的机器人说完的上限。超过就直接开口，避免两个实例互相等死。建议 15~30。",
+    "default": 20
+  },
+  "floor_ttl_seconds": {
+    "type": "int",
+    "description": "占用标记的有效期（秒）",
+    "hint": "前一个机器人拿到发言权后，超过这个时间标记自动作废（防插件异常时卡住）。建议 90~180，要大于最慢一次回复的时间。",
+    "default": 120
+  },
+  "poll_interval_seconds": {
+    "type": "float",
+    "description": "轮询间隔（秒）",
+    "hint": "等的时候多久看一次对方说完没有。0.2~0.5 都行，太小浪费 CPU。",
+    "default": 0.3
+  },
+  "gap_min_seconds": {
+    "type": "float",
+    "description": "对方说完后，自己至少再停几秒",
+    "hint": "避免对方刚发完、自己立刻贴上去。建议 0.8~1.5。",
+    "default": 1.0
+  },
+  "gap_max_seconds": {
+    "type": "float",
+    "description": "对方说完后，自己最多再停几秒",
+    "hint": "与上一项组成随机区间。建议 2.0~3.5。",
+    "default": 2.5
+  },
+  "shared_dir": {
+    "type": "string",
+    "description": "共享状态目录（留空 = 系统临时目录）",
+    "hint": "多个 AstrBot 实例必须指向同一个目录才能互相看见。留空时用 %TEMP%\\astrbot_group_handoff。",
+    "default": ""
+  }
+}
