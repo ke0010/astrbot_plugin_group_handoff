@@ -1,14 +1,17 @@
 name: astrbot_plugin_group_handoff
 display_name: 群聊轮流说话（握手）
-short_desc: 群里多个机器人不再同时抢话：后开口的那个先等前一个说完，再带着对方刚说的话接上。
+short_desc: 群里多个机器人不再抢话：一个说完另一个再接；还能离场静默、点名接话、按场景注入用词表。
 desc: >-
   同一群里有多个机器人（例如柯莱、芙宁娜）时，同一个触发词会让它们几乎同时开始生成，于是第二个不看第一个说了什么就抢着接。
-  本插件在「准备调用 LLM、还没组装上下文」的时机插手：先看群里有没有别的机器人正在说，有就等它说完（最多等 N 秒），
-  然后再组装 prompt——这样它读到的历史里已经包含对方刚发的那句，接话就顺了。
+  本插件在「准备调用 LLM、还没组装上下文」的时机插手，提供四件事：
+  ①接力：先看群里有没有别的机器人在说，有就等它说完（最多等 N 秒）再组装 prompt，接话就顺了；
+  ②离场：主人说「某某离场」，这个机器人就静默，直到主人说「某某回来」；
+  ③点名：主人点名谁谁接话，没点名就由最近说过话的那个接，叫「你们俩」时两个都接；
+  ④用词注入：判定进入场景后，把该机器人自己指定的一份词表文件里的小节追加进本轮 system prompt（词表由使用者自备）。
   状态通过共享文件在多个 AstrBot 实例之间同步，只在同一台机器上的多个实例之间有效。
-version: v0.1.0
+version: v0.2.0
 author: 柯
-repo: "https://github.com/ke0010/astrbot_plugin_group_handoff"
+repo: https://github.com/ke0010/astrbot_plugin_group_handoff
 astrbot_version: ">=4.19,<5"
 support_platforms:
   - aiocqhttp
