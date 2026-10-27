@@ -1,14 +1,20 @@
 {
   "enabled": {
     "type": "bool",
-    "description": "启用群聊轮流说话",
-    "hint": "关掉就完全回到 AstrBot 原生行为。两个实例都要各自打开，否则只有一边会等。",
+    "description": "启用群聊调度",
+    "hint": "总开关。关掉就完全回到 AstrBot 原生行为。",
     "default": true
   },
   "group_whitelist": {
     "type": "list",
     "description": "生效的群号白名单（留空 = 所有群聊）",
     "hint": "填 QQ 群号，只对这些群生效。私聊永远不生效。",
+    "default": []
+  },
+  "master_ids": {
+    "type": "list",
+    "description": "主人 QQ 号（只有这些人的消息参与离场口令、点名叫人、场景判定）",
+    "hint": "留空 = 任何非机器人发的消息都算。建议填上，否则群里任何人都能触发离场/点名。",
     "default": []
   },
   "max_wait_seconds": {
@@ -46,5 +52,108 @@
     "description": "共享状态目录（留空 = 系统临时目录）",
     "hint": "多个 AstrBot 实例必须指向同一个目录才能互相看见。留空时用 %TEMP%\\astrbot_group_handoff。",
     "default": ""
+  },
+  "bot_names": {
+    "type": "string",
+    "description": "平台 ID = 机器人名字（逗号分隔多组，分号隔开）",
+    "hint": "格式：default=柯莱;furina=芙宁娜。平台 ID 就是 AstrBot 平台配置里的 ID，不要填 QQ 号。",
+    "default": "default=柯莱;furina=芙宁娜"
+  },
+  "bot_aliases": {
+    "type": "string",
+    "description": "平台 ID = 称呼列表（点名用）",
+    "hint": "格式：default=柯莱,小柯莱;furina=芙宁娜,大明星,芙芙。名字出现在句首或称呼位才算点名。",
+    "default": "default=柯莱,小柯莱;furina=芙宁娜,大明星,芙芙,水神"
+  },
+  "presence_enable": {
+    "type": "bool",
+    "description": "启用离场静默",
+    "hint": "主人说「柯莱离场」后，柯莱在群里完全不说话，直到主人说「柯莱回来」。",
+    "default": true
+  },
+  "presence_enter_words": {
+    "type": "list",
+    "description": "离场口令词",
+    "hint": "消息里同时出现「称呼 + 这些词之一」就算离场，例如「芙宁娜离场」「离场 柯莱」。",
+    "default": ["离场", "离开"]
+  },
+  "presence_exit_words": {
+    "type": "list",
+    "description": "回来口令词",
+    "hint": "同上，例如「柯莱回来了」。",
+    "default": ["回来", "回来了", "回归"]
+  },
+  "mention_enable": {
+    "type": "bool",
+    "description": "启用点名接话",
+    "hint": "主人点名谁，谁接话；没被点到的闭嘴；都没点就由最近说过话的那个接。",
+    "default": true
+  },
+  "mention_group_words": {
+    "type": "list",
+    "description": "叫了两个人的说法",
+    "hint": "消息里出现这些词时，两个机器人都可以接。",
+    "default": ["你们", "你们俩", "你们两个", "你俩"]
+  },
+  "scene_enable": {
+    "type": "bool",
+    "description": "启用亲密场景用词注入",
+    "hint": "判定进入场景后，把该机器人自己私库 08 里的词表段追加进本轮 system prompt。",
+    "default": true
+  },
+  "scene_strong_words": {
+    "type": "list",
+    "description": "强触发词（出现一个就进入场景）",
+    "hint": "日常不会出现的词。「湿透」「射」「裸」自带例外规则（雨/箭/裸眼不算）。",
+    "default": ["内裤", "脱掉", "裸", "含住", "舔", "抽插", "没入", "插入", "射", "高潮", "爱液", "湿透", "龟头", "阴道", "阴蒂", "阴唇", "肉棒", "精液", "勃起", "呻吟", "闷哼", "水声"]
+  },
+  "scene_weak_words": {
+    "type": "list",
+    "description": "弱触发词（同一条消息凑够阈值、且至少两种不同，才算进入）",
+    "hint": "日常也常见。「紧」遇紧张/要紧/赶紧不算；「热」要同条有身体词才算。",
+    "default": ["抱", "亲", "摸", "贴", "吻", "床", "被窝", "喘", "腰", "腿", "热", "紧", "胸口", "贴上来"]
+  },
+  "scene_weak_threshold": {
+    "type": "int",
+    "description": "弱词阈值（同一条消息里出现几个）",
+    "hint": "默认 3，且至少 2 种不同。调低会更敏感。",
+    "default": 3
+  },
+  "scene_weak_streak": {
+    "type": "int",
+    "description": "连续几条消息都有弱词就算进入场景",
+    "hint": "默认 3：连续三条主人消息各至少一个弱词，也视为进入。",
+    "default": 3
+  },
+  "scene_end_words": {
+    "type": "list",
+    "description": "收尾词（出现后再延续几轮才退出）",
+    "hint": "注意：故意不放「睡了」，因为机器人太爱说这个词。",
+    "default": ["穿衣服", "起来", "天亮了", "起身", "洗漱", "去做饭", "出门", "收拾"]
+  },
+  "scene_end_grace_rounds": {
+    "type": "int",
+    "description": "收尾词出现后再延续注入几轮",
+    "hint": "默认 3。这几轮里如果又出现强词，倒计时作废、继续留在场景里。",
+    "default": 3
+  },
+  "scene_vocab_files": {
+    "type": "string",
+    "description": "平台 ID = 该机器人的用词表文件路径",
+    "hint": "留空 = 不注入。填法：平台ID=文件绝对路径，多个用分号隔开，如 default=D:\\my\\vocab.md。运行时读取，只取标题含「词表」的那一节，改文件不用重启。",
+    "default": ""
+  },
+  "scene_vocab_heading": {
+    "type": "string",
+    "description": "词表小节的标题关键词",
+    "hint": "取标题里含这个词的一整节（从该 ## 到下一个 ##）。默认「词表」。",
+    "default": "词表"
+  },
+  "scene_inject_prefix": {
+    "type": "string",
+    "description": "注入时加在词表前面的说明句",
+    "hint": "改这句话可以调整模型对词表的服从方式。",
+    "default": "【本轮用词参考】下面是你自己那张用词表。说到身体和动作时优先用这里的词，要具体、直白，不用含糊代称，也不用比喻绕过去："
   }
 }
+
